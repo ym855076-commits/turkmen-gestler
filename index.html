@@ -63,11 +63,16 @@
         .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); text-align: center; display: flex; flex-direction: column; }
         
         .media-box { width: 100%; height: 180px; background-color: var(--media-bg); border: 1px solid var(--media-border); border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 10px; flex-shrink: 0;}
-        .media-box img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.3s ease; display: none;}
-        .media-box video { width: 100%; height: 100%; object-fit: contain; display: none; background: black;}
+        /* object-fit: cover растягивает фото на всю рамку равномерно без пустых полей */
+        .media-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; display: none;}
+        .media-box video { width: 100%; height: 100%; object-fit: cover; display: none; background: black;}
         .media-box span { color: #10b981; font-size: 12px; font-weight: 500; }
         
-        .card-title-input { width: 100%; padding: 6px 10px; font-size: 12px; font-weight: bold; color: var(--text-color); border: 1px solid var(--card-border); border-radius: 6px; outline: none; margin-bottom: 6px; background: var(--bg-color); text-align: center; }
+        .input-group { display: flex; gap: 4px; margin-bottom: 6px; align-items: center; }
+        .card-title-input { flex: 1; padding: 6px 8px; font-size: 11px; color: var(--text-color); border: 1px solid var(--card-border); border-radius: 6px; outline: none; background: var(--bg-color); }
+        .lang-badge { font-size: 10px; font-weight: bold; background: var(--card-border); padding: 4px 6px; border-radius: 4px; color: var(--subtext-color); }
+        .btn-speak { background: #f59e0b; color: white; border: none; padding: 6px 8px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        
         .letter-display { font-size: 22px; font-weight: bold; color: #10b981; margin-bottom: 6px; display: block; }
 
         .btn-group { display: flex; gap: 4px; justify-content: center; align-items: center; margin-top: auto; flex-wrap: wrap;}
@@ -127,7 +132,6 @@
             <button onclick="switchTab('about')" id="tab-btn-about" class="tab-btn">Maglumat</button>
         </div>
 
-        <!-- Панель резервного копирования, чтобы данные не пропадали при очистке памяти -->
         <div class="backup-panel">
             <p id="backup-desc">💾 Maglumatlaryňyzy ýitirmezlik üçin faýl hökmünde saklap bilersiňiz:</p>
             <div style="display: flex; gap: 6px;">
@@ -245,14 +249,15 @@
             const dictGrid = document.getElementById('dictionary-grid');
             dictGrid.innerHTML = '';
             items.forEach(item => {
-                const savedTitle = localStorage.getItem('title_' + item.id) || `Jest ${item.id.replace('dict_', '')}`;
-                createCardHTML(dictGrid, item.id, null, savedTitle);
+                const savedTitleRu = localStorage.getItem('title_ru_' + item.id) || '';
+                const savedTitleTk = localStorage.getItem('title_tk_' + item.id) || `Jest ${item.id.replace('dict_', '')}`;
+                createCardHTML(dictGrid, item.id, null, savedTitleRu, savedTitleTk);
                 loadSavedMedia(item.id);
             });
         }
         renderDictionary(dictionaryItems);
 
-        function createCardHTML(container, id, letter, savedTitle = null) {
+        function createCardHTML(container, id, letter, savedTitleRu = '', savedTitleTk = '') {
             const card = document.createElement('div');
             card.className = "card";
             
@@ -260,7 +265,18 @@
             if (letter) {
                 topContent = `<span class="letter-display">${letter}</span>`;
             } else {
-                topContent = `<input type="text" class="card-title-input" value="${savedTitle}" id="title_input_${id}" oninput="saveTitle('${id}', this.value)" placeholder="Jest adyny ýazyň...">`;
+                topContent = `
+                    <div class="input-group">
+                        <span class="lang-badge">RU</span>
+                        <input type="text" class="card-title-input" value="${savedTitleRu}" id="title_ru_${id}" oninput="saveTitle('${id}', 'ru', this.value)" placeholder="Название на русском...">
+                        <button type="button" class="btn-speak" onclick="speakText('title_ru_${id}', 'ru')" title="Okan / Озвучить">🔊</button>
+                    </div>
+                    <div class="input-group">
+                        <span class="lang-badge">TK</span>
+                        <input type="text" class="card-title-input" value="${savedTitleTk}" id="title_tk_${id}" oninput="saveTitle('${id}', 'tk', this.value)" placeholder="Türkmençe ady...">
+                        <button type="button" class="btn-speak" onclick="speakText('title_tk_${id}', 'tk')" title="Okan / Озвучить">🔊</button>
+                    </div>
+                `;
             }
 
             card.innerHTML = `
@@ -282,15 +298,28 @@
             container.appendChild(card);
         }
 
-        function saveTitle(id, val) { localStorage.setItem('title_' + id, val); }
+        function saveTitle(id, lang, val) { localStorage.setItem('title_' + lang + '_' + id, val); }
         
+        function speakText(inputId, lang) {
+            const text = document.getElementById(inputId).value;
+            if (!text) { alert("Söz ýok! / Нет текста для озвучки."); return; }
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = (lang === 'ru') ? 'ru-RU' : 'tk-TM';
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("Siziňブラuseringiz sesleme hyzmatyny goldamaýar.");
+            }
+        }
+
         function filterDictionary() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const cat = document.getElementById('category-select').value;
             const filtered = dictionaryItems.filter(item => {
                 const matchesCat = (cat === 'all' || item.cat === cat);
-                const currentTitle = (localStorage.getItem('title_' + item.id) || `Jest ${item.id.replace('dict_', '')}`).toLowerCase();
-                return matchesCat && currentTitle.includes(query);
+                const titleRu = (localStorage.getItem('title_ru_' + item.id) || '').toLowerCase();
+                const titleTk = (localStorage.getItem('title_tk_' + item.id) || `Jest ${item.id.replace('dict_', '')}`).toLowerCase();
+                return matchesCat && (titleRu.includes(query) || titleTk.includes(query));
             });
             renderDictionary(filtered);
         }
@@ -304,13 +333,13 @@
                         const img = new Image();
                         img.onload = function() {
                             const canvas = document.createElement('canvas');
-                            const MAX = 700;
+                            const MAX = 800;
                             let w = img.width, h = img.height;
                             if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } }
                             else { if (h > MAX) { w *= MAX / h; h = MAX; } }
                             canvas.width = w; canvas.height = h;
                             canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                            const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
                             
                             localStorage.removeItem('vid_' + id);
                             localStorage.setItem('img_' + id, dataUrl);
@@ -385,7 +414,6 @@
             if(txtEl) txtEl.style.display = 'block';
         }
 
-        // Функции резервного копирования (Экспорт / Импорт)
         function exportData() {
             const dataObj = {};
             for (let i = 0; i < localStorage.length; i++) {
@@ -470,13 +498,13 @@
             } else if (currentGameType === 2) {
                 titleEl.innerText = "Jest sözüni tap / Угадай название жеста";
                 let randomItem = dictionaryItems[Math.floor(Math.random() * dictionaryItems.length)];
-                let correctTitle = localStorage.getItem('title_' + randomItem.id) || `Jest ${randomItem.id.replace('dict_', '')}`;
+                let correctTitle = localStorage.getItem('title_tk_' + randomItem.id) || `Jest ${randomItem.id.replace('dict_', '')}`;
                 targetEl.innerText = "Tema: " + randomItem.cat.toUpperCase();
                 
                 let choices = [correctTitle];
                 while (choices.length < 4) {
                     let randOther = dictionaryItems[Math.floor(Math.random() * dictionaryItems.length)];
-                    let otherTitle = localStorage.getItem('title_' + randOther.id) || `Jest ${randOther.id.replace('dict_', '')}`;
+                    let otherTitle = localStorage.getItem('title_tk_' + randOther.id) || `Jest ${randOther.id.replace('dict_', '')}`;
                     if (!choices.includes(otherTitle)) choices.push(otherTitle);
                 }
                 choices.sort(() => Math.random() - 0.5);
