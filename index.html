@@ -51,6 +51,11 @@
         .section-title { font-size: 18px; font-weight: bold; color: #10b981; margin-bottom: 4px; }
         .section-desc { font-size: 12px; color: var(--subtext-color); margin-bottom: 14px; }
 
+        .backup-panel { background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px; border-radius: 10px; margin-bottom: 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+        .backup-panel p { font-size: 11px; color: var(--subtext-color); }
+        .btn-backup { background: #059669; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .btn-backup:hover { background: #047857; }
+
         .search-box { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
         .search-input, .cat-select { flex: 1; min-width: 180px; padding: 8px 12px; font-size: 12px; border: 1px solid var(--card-border); border-radius: 8px; outline: none; background: var(--card-bg); color: var(--text-color); }
 
@@ -122,6 +127,17 @@
             <button onclick="switchTab('about')" id="tab-btn-about" class="tab-btn">Maglumat</button>
         </div>
 
+        <!-- Панель резервного копирования, чтобы данные не пропадали при очистке памяти -->
+        <div class="backup-panel">
+            <p id="backup-desc">💾 Maglumatlaryňyzy ýitirmezlik üçin faýl hökmünde saklap bilersiňiz:</p>
+            <div style="display: flex; gap: 6px;">
+                <button onclick="exportData()" class="btn-backup" id="btn-export">📥 Ýazdyrmak (Backup)</button>
+                <label class="btn-backup" style="cursor: pointer; display: inline-block;">
+                    📤 Dikeltmek <input type="file" accept=".json" onchange="importData(event)">
+                </label>
+            </div>
+        </div>
+
         <div id="tab-alphabet">
             <h2 class="section-title" id="alpha-h">Türkmen Barmak Elipbiýi (Алфавит)</h2>
             <p class="section-desc" id="alpha-d">Ähli harplar üçin suratlary we wideolary ýükläp bilersiňiz.</p>
@@ -189,7 +205,6 @@
     </footer>
 
     <script>
-        // Лайфхак: Переключение светлой и темной темы с сохранением выбора
         function toggleTheme() {
             const body = document.body;
             const btn = document.getElementById('theme-btn');
@@ -245,7 +260,7 @@
             if (letter) {
                 topContent = `<span class="letter-display">${letter}</span>`;
             } else {
-                topContent = `<input type="text" class="card-title-input" value="${savedTitle}" oninput="saveTitle('${id}', this.value)" placeholder="Jest adyny ýazyň...">`;
+                topContent = `<input type="text" class="card-title-input" value="${savedTitle}" id="title_input_${id}" oninput="saveTitle('${id}', this.value)" placeholder="Jest adyny ýazyň...">`;
             }
 
             card.innerHTML = `
@@ -280,7 +295,6 @@
             renderDictionary(filtered);
         }
 
-        // Лайфхак: Автоматическое сжатие изображений при загрузке (экономит память телефона без интернета)
         function loadMedia(event, id, type) {
             const file = event.target.files[0];
             if (file) {
@@ -369,6 +383,41 @@
             if(imgEl) imgEl.style.display = 'none'; 
             if(vidEl) vidEl.style.display = 'none';
             if(txtEl) txtEl.style.display = 'block';
+        }
+
+        // Функции резервного копирования (Экспорт / Импорт)
+        function exportData() {
+            const dataObj = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                dataObj[key] = localStorage.getItem(key);
+            }
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataObj));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "turkmen_gestler_backup.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const dataObj = JSON.parse(e.target.result);
+                    for (let key in dataObj) {
+                        localStorage.setItem(key, dataObj[key]);
+                    }
+                    alert("Maglumatlar üstünlükli dikeldildi! Sahypa täzelenýär. 🎉");
+                    location.reload();
+                } catch (err) {
+                    alert("Ýalňyş faýl! Faýl okalyp bilmedi. ❌");
+                }
+            };
+            reader.readAsText(file);
         }
 
         function switchTab(tabId) {
@@ -474,8 +523,8 @@
         }
 
         const texts = {
-            tk: { title: "Türkmen Barmak Elipbiýi we Jestler", school: "Lebap welaýatynyň 5-nji ker, çala eşidýän we soň ker bolan çagalar üçin ýörite mekdep-internaty", home: "Öýe", tabAlpha: "Daktil Elipbiý", tabDict: "Jestler (100)", tabGames: "🎮 Oýunlar", tabAbout: "Maglumat", alphaH: "Türkmen Barmak Elipbiýi (Алфавит)", alphaD: "Ähli harplar üçin suratlary we wideolary ýükläp bilersiňiz.", dictH: "Tematiki Jestler Sözlügi (100)", dictD: "Mekdep maksatnamasy boýunça esasy jestler.", aboutH: "Maglumat we Awtorlyk Hukugy" },
-            ru: { title: "Туркменский дактильный алфавит и жесты", school: "Специальная школа-интернат для глухих и слабослышащих детей №5 Лебапского велаята", home: "Домой", tabAlpha: "Дактильный алфавит", tabDict: "Жесты (100)", tabGames: "🎮 Игры", tabAbout: "О программе", alphaH: "Туркменский дактильный алфавит", alphaD: "Вы можете загрузить фото- и видеоматериалы.", dictH: "Тематический словарь жестов (100)", dictD: "Основные жесты по школьной программе.", aboutH: "Информация и авторские права" }
+            tk: { title: "Türkmen Barmak Elipbiýi we Jestler", school: "Lebap welaýatynyň 5-nji ker, çala eşidýän we soň ker bolan çagalar üçin ýörite mekdep-internaty", home: "Öýe", tabAlpha: "Daktil Elipbiý", tabDict: "Jestler (100)", tabGames: "🎮 Oýunlar", tabAbout: "Maglumat", alphaH: "Türkmen Barmak Elipbiýi (Алфавит)", alphaD: "Ähli harplar üçin suratlary we wideolary ýükläp bilersiňiz.", dictH: "Tematiki Jestler Sözlügi (100)", dictD: "Mekdep maksatnamasy boýunça esasy jestler.", aboutH: "Maglumat we Awtorlyk Hukugy", backupDesc: "💾 Maglumatlaryňyzy ýitirmezlik üçin faýl hökmünde saklap bilersiňiz:", btnExport: "📥 Ýazdyrmak (Backup)" },
+            ru: { title: "Туркменский дактильный алфавит и жесты", school: "Специальная школа-интернат для глухих и слабослышащих детей №5 Лебапского велаята", home: "Домой", tabAlpha: "Дактильный алфавит", tabDict: "Жесты (100)", tabGames: "🎮 Игры", tabAbout: "О программе", alphaH: "Туркменский дактильный алфавит", alphaD: "Вы можете загрузить фото- и видеоматериалы.", dictH: "Тематический словарь жестов (100)", dictD: "Основные жесты по школьной программе.", aboutH: "Информация и авторские права", backupDesc: "💾 Чтобы не потерять данные, сохраните их в файл:", btnExport: "📥 Сохранить (Backup)" }
         };
         
         function changeLanguage(lang) {
@@ -492,6 +541,8 @@
             document.getElementById('dict-h').innerText = t.dictH;
             document.getElementById('dict-d').innerText = t.dictD;
             document.getElementById('about-h').innerText = t.aboutH;
+            document.getElementById('backup-desc').innerText = t.backupDesc;
+            document.getElementById('btn-export').innerText = t.btnExport;
         }
     </script>
 </body>
