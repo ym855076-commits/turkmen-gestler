@@ -164,7 +164,6 @@
                 </div>
             </div>
 
-            <!-- Игровой экран -->
             <div id="game-quiz" class="game-box hidden">
                 <button class="back-to-games" onclick="closeGames()">← Yzyna / Назад</button>
                 <div class="game-score" id="quiz-score">Utuk / Очки: 0</div>
@@ -180,17 +179,17 @@
                 <h2 id="about-h">Maglumat we Awtorlyk Hukugy</h2>
                 <p><strong>Gurama / Организация:</strong> Türkmenistanyň Bilim ministrligi, Lebap welaýat baş bilim müdirligi</p>
                 <p><strong>Mekdep / Учреждение:</strong> Lebap welaýatynyň 5-nji ker, çala eşidýän we soň ker bolan çagalar üçin ýörite umumybilim berýän mekdep-internaty</p>
-                <p style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--card-border);"><strong>Dörediji / Автор проекта:</strong> Terbiýeçi Mursafi Subderbeçe (Воспитатель Мурсафи Субдербече)</p>
+                <p style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--card-border);"><strong>Dörediji / Автор проекта:</strong> Yusup Murzaew</p>
             </div>
         </div>
     </main>
 
     <footer>
-        <p>&copy; 2026 Lebap welaýatynyň ýörite mekdep-internaty. Dörediji: Mursafi Subderbeçe</p>
+        <p>&copy; 2026 Lebap welaýatynyň ýörite mekdep-internaty. Dörediji: Yusup Murzaew</p>
     </footer>
 
     <script>
-        // Переключение тем
+        // Лайфхак: Переключение светлой и темной темы с сохранением выбора
         function toggleTheme() {
             const body = document.body;
             const btn = document.getElementById('theme-btn');
@@ -204,7 +203,6 @@
                 localStorage.setItem('theme', 'light');
             }
         }
-        // Загрузка сохраненной темы
         if (localStorage.getItem('theme') === 'dark') {
             document.body.setAttribute('data-theme', 'dark');
             document.getElementById('theme-btn').innerText = '☀️';
@@ -282,6 +280,7 @@
             renderDictionary(filtered);
         }
 
+        // Лайфхак: Автоматическое сжатие изображений при загрузке (экономит память телефона без интернета)
         function loadMedia(event, id, type) {
             const file = event.target.files[0];
             if (file) {
@@ -403,7 +402,6 @@
             optionsEl.innerHTML = '';
 
             if (currentGameType === 1) {
-                // Игра 1: Угадай букву
                 titleEl.innerText = "Harp haýsy? / Какая это буква?";
                 const correct = letters[Math.floor(Math.random() * letters.length)];
                 targetEl.innerText = "Harp: " + correct;
@@ -421,7 +419,6 @@
                     optionsEl.appendChild(btn);
                 });
             } else if (currentGameType === 2) {
-                // Игра 2: Угадай название жеста из словаря
                 titleEl.innerText = "Jest sözüni tap / Угадай название жеста";
                 let randomItem = dictionaryItems[Math.floor(Math.random() * dictionaryItems.length)];
                 let correctTitle = localStorage.getItem('title_' + randomItem.id) || `Jest ${randomItem.id.replace('dict_', '')}`;
@@ -442,7 +439,6 @@
                     optionsEl.appendChild(btn);
                 });
             } else {
-                // Игра 3: Викторина на скорость / Проверка знаний (True/False или выбор категории)
                 titleEl.innerText = "Tizlik barlagy / Проверка памяти";
                 let num1 = Math.floor(Math.random() * 10) + 1;
                 let num2 = Math.floor(Math.random() * 10) + 1;
@@ -488,7 +484,7 @@
             document.getElementById('h-school').innerText = t.school;
             document.getElementById('btn-home').innerText = t.home;
             document.getElementById('tab-btn-alphabet').innerText = t.tabAlpha;
-            document.getElementById('tab-btn-dictionary').innerText, t.tabDict;
+            document.getElementById('tab-btn-dictionary').innerText = t.tabDict;
             document.getElementById('tab-btn-games').innerText = t.tabGames;
             document.getElementById('tab-btn-about').innerText = t.tabAbout;
             document.getElementById('alpha-h').innerText = t.alphaH;
