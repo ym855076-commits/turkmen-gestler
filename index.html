@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="tk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Türkmen Barmak Elipbiýi we Jestler</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: #f8fafc; color: #1e293b; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        header { background-color: #047857; color: white; padding: 12px 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 50; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+        header h1 { font-size: 13px; font-weight: bold; }
+        .header-controls { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .btn-top { background-color: #065f46; color: white; border: 1px solid #047857; padding: 6px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; text-decoration: none; font-weight: 500; }
+        select.lang-sel { background-color: #065f46; color: white; border: 1px solid #047857; padding: 5px 8px; border-radius: 6px; font-size: 11px; outline: none; }
+        header p { font-size: 11px; color: #d1fae5; line-height: 1.2; }
+
+        main { max-width: 800px; width: 100%; margin: 0 auto; padding: 16px; flex-grow: 1; }
+        
+        .tabs { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; overflow-x: auto; }
+        .tab-btn { background-color: white; color: #334155; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 8px; font-size: 11px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+        .tab-btn.active { background-color: #047857; color: white; border-color: #047857; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+
+        .section-title { font-size: 18px; font-weight: bold; color: #047857; margin-bottom: 4px; }
+        .section-desc { font-size: 12px; color: #475569; margin-bottom: 14px; }
+
+        .search-box { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+        .search-input, .cat-select { flex: 1; min-width: 180px; padding: 8px 12px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; background: white; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); text-align: center; display: flex; flex-direction: column; }
+        
+        .media-box { width: 100%; height: 180px; background-color: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 10px; flex-shrink: 0;}
+        .media-box img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.3s ease; display: none;}
+        .media-box video { width: 100%; height: 100%; object-fit: contain; display: none; background: black;}
+        .media-box span { color: #047857; font-size: 12px; font-weight: 500; }
+        
+        .card-title-input { width: 100%; padding: 6px 10px; font-size: 12px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; margin-bottom: 6px; background: #f8fafc; text-align: center; }
+        .letter-display { font-size: 22px; font-weight: bold; color: #047857; margin-bottom: 6px; display: block; }
+
+        .btn-group { display: flex; gap: 4px; justify-content: center; align-items: center; margin-top: auto; flex-wrap: wrap;}
+        .btn { flex: 1; padding: 7px 2px; font-size: 10px; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; text-align: center; color: white; white-space: nowrap; display: inline-block; }
+        .btn-gallery { background-color: #059669; }
+        .btn-video { background-color: #7c3aed; }
+        .btn-rotate { background-color: #fef3c7; color: #92400e; flex: 0 0 32px; font-size: 12px; }
+        .btn-delete { background-color: #ffe4e6; color: #9f1239; flex: 0 0 32px; font-size: 12px; }
+        
+        input[type="file"] { display: none; }
+
+        .games-menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .game-menu-card { background: white; border: 1px solid #cbd5e1; border-radius: 10px; padding: 16px; text-align: center; cursor: pointer; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .game-menu-card:hover { border-color: #047857; background-color: #f0fdf4; }
+        .game-menu-card h3 { color: #047857; font-size: 14px; margin-bottom: 4px; }
+        .game-menu-card p { font-size: 11px; color: #64748b; }
+        .game-box { background: white; border: 1px solid #cbd5e1; border-radius: 12px; padding: 20px; max-width: 500px; margin: 0 auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); text-align: center; }
+        .game-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .game-btn { background-color: #f1f5f9; border: 1px solid #cbd5e1; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: bold; color: #334155; cursor: pointer; transition: 0.2s; }
+        .game-btn:hover { background-color: #e2e8f0; border-color: #94a3b8; }
+        .game-score { font-size: 13px; font-weight: bold; color: #047857; margin-bottom: 10px; }
+        .back-to-games { background: #64748b; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; margin-bottom: 15px; float: left; }
+
+        .info-box { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; font-size: 12px; line-height: 1.6; }
+        .info-box h2 { color: #047857; font-size: 16px; margin-bottom: 8px; }
+
+        footer { background: white; border-top: 1px solid #e2e8f0; padding: 12px; text-align: center; font-size: 11px; color: #64748b; margin-top: auto; }
+        .hidden { display: none !important; }
+        .w-full { width: 100%; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container" style="max-width: 800px; margin: 0 auto;">
+            <div class="header-top">
+                <h1 id="h-title">Türkmen Barmak Elipbiýi we Jestler</h1>
+                <div class="header-controls">
+                    <button onclick="goHome()" class="btn-top">🏠 <span id="btn-home">Öýe</span></button>
+                    <select id="lang-select" onchange="changeLanguage(this.value)" class="lang-sel">
+                        <option value="tk">Türkmençe</option>
+                        <option value="ru">Русский</option>
+                    </select>
+                </div>
+            </div>
+            <p id="h-school">Lebap welaýatynyň 5-nji ker, çala eşidýän we soň ker bolan çagalar üçin ýörite mekdep-internaty</p>
+        </div>
+    </header>
+
+    <main>
+        <div class="tabs">
+            <button onclick="switchTab('alphabet')" id="tab-btn-alphabet" class="tab-btn active">Daktil Elipbiý</button>
+            <button onclick="switchTab('dictionary')" id="tab-btn-dictionary" class="tab-btn">Jestler (100)</button>
+            <button onclick="switchTab('games')" id="tab-btn-games" class="tab-btn">🎮 Oýunlar</button>
+            <button onclick="switchTab('about')" id="tab-btn-about" class="tab-btn">Maglumat</button>
+        </div>
+
+        <div id="tab-alphabet">
+            <h2 class="section-title" id="alpha-h">Türkmen Barmak Elipbiýi (Алфавит)</h2>
+            <p class="section-desc" id="alpha-d">Ähli harplar üçin suratlary we wideolary ýükläp bilersiňiz.</p>
+            <div class="grid" id="alphabet-grid"></div>
+        </div>
+
+        <div id="tab-dictionary" class="hidden">
+            <h2 class="section-title" id="dict-h">Tematiki Jestler Sözlügi (100)</h2>
+            <p class="section-desc" id="dict-d">Mekdep maksatnamasy boýunça esasy jestler.</p>
+            <div class="search-box">
+                <input type="text" id="search-input" oninput="filterDictionary()" placeholder="Gözleg (Поиск жеста)..." class="search-input">
+                <select id="category-select" onchange="filterDictionary()" class="cat-select">
+                    <option value="all">Ähli temalar / Все темы</option>
+                    <option value="salam">Salamlaşmak / Общение (20)</option>
+                    <option value="mekdep">Mekdep / Школа (20)</option>
+                    <option value="mashgala">Maşgala / Семья (20)</option>
+                    <option value="wagt">Wagt / Время (20)</option>
+                    <option value="iymit">Iýmit / Еда (20)</option>
+                </select>
+            </div>
+            <div class="grid" id="dictionary-grid"></div>
+        </div>
+
+        <div id="tab-games" class="hidden">
+            <h2 class="section-title">Oýunlar we Testler / Обучающие игры</h2>
+            <p class="section-desc">Okuwçylaryň bilimini barlamak we berkitmek üçin oýunlar.</p>
+            <div id="games-menu-container" class="games-menu">
+                <div class="game-menu-card" onclick="startQuizGame()"><h3>🎯 1. Harp Testi</h3><p>Harp saýlamak we barlamak / Угадай букву</p></div>
+            </div>
+            <div id="game-quiz" class="game-box hidden">
+                <button class="back-to-games" onclick="closeGames()">← Yzyna / Назад</button>
+                <div class="game-score" id="quiz-score">Utuk / Очки: 0</div>
+                <h3 style="font-size: 15px; color: #047857; margin-bottom: 10px;">Harp haýsy? / Какая это буква?</h3>
+                <div style="font-size: 24px; font-weight: bold; color: #0f172a; margin-bottom: 10px;" id="game-target">A</div>
+                <div class="game-options" id="game-options"></div>
+                <button onclick="nextGameQuestion()" style="margin-top: 15px; background: #047857; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; cursor: pointer;">Indiki сорау / Следующий вопрос</button>
+            </div>
+        </div>
+
+        <div id="tab-about" class="hidden">
+            <div class="info-box">
+                <h2 id="about-h">Maglumat we Awtorlyk Hukugy</h2>
+                <p><strong>Gurama / Организация:</strong> Türkmenistanyň Bilim ministrligi, Lebap welaýat baş bilim müdirligi</p>
+                <p><strong>Mekdep / Учреждение:</strong> Lebap welaýatynyň 5-nji ker, çala eşidýän we soň ker bolan çagalar üçin ýörite umumybilim berýän mekdep-internaty</p>
+                <p style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e2e8f0;"><strong>Dörediji / Автор проекта:</strong> Terbiýeçi Mursafi Subderbeçe (Воспитатель Мурсафи Субдербече)</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Lebap welaýatynyň ýörite mekdep-internaty. Dörediji: Mursafi Subderbeçe</p>
+    </footer>
+
+    <script>
+        const letters = ["A", "B", "Ç", "D", "E", "Ä", "F", "G", "H", "I", "J", "Ž", "K", "L", "M", "N", "Ň", "O", "Ö", "P", "R", "S", "Ş", "T", "U", "Ü", "W", "Y", "Ý", "Z"];
+        const alphaGrid = document.getElementById('alphabet-grid');
+
+        letters.forEach(letter => {
+            createCardHTML(alphaGrid, 'alpha_' + letter, letter);
+            loadSavedMedia('alpha_' + letter);
+        });
+
+        const dictionaryItems = [];
+        const themes = { salam: 20, mekdep: 20, mashgala: 20, wagt: 20, iymit: 20 };
+        let counter = 1;
+        for (let cat in themes) {
+            for (let i = 1; i <= themes[cat]; i++) { 
+                dictionaryItems.push({ id: 'dict_' + counter, cat: cat }); 
+                counter++; 
+            }
+        }
+
+        function renderDictionary(items) {
+            const dictGrid = document.getElementById('dictionary-grid');
+            dictGrid.innerHTML = '';
+            items.forEach(item => {
+                const savedTitle = localStorage.getItem('title_' + item.id) || `Jest ${item.id.replace('dict_', '')}`;
+                createCardHTML(dictGrid, item.id, null, savedTitle);
+                loadSavedMedia(item.id);
+            });
+        }
+        renderDictionary(dictionaryItems);
+
+        function createCardHTML(container, id, letter, savedTitle = null) {
+            const card = document.createElement('div');
+            card.className = "card";
+            
+            let topContent = '';
+            if (letter) {
+                topContent = `<span class="letter-display">${letter}</span>`;
+            } else {
+                topContent = `<input type="text" class="card-title-input" value="${savedTitle}" oninput="saveTitle('${id}', this.value)" placeholder="Jest adyny ýazyň...">`;
+            }
+
+            card.innerHTML = `
+                <div class="media-box" id="box_${id}">
+                    <img id="img_${id}" style="display: none;">
+                    <video id="vid_file_${id}" style="display: none;" controls class="w-full"></video>
+                    <span id="txt_${id}">Surat/Wideo ýok</span>
+                </div>
+                
+                ${topContent}
+                
+                <div class="btn-group">
+                    <label class="btn btn-gallery" title="Surat goş">📷 Surat <input type="file" accept="image/*" onchange="loadMedia(event, '${id}', 'img')"></label>
+                    <label class="btn btn-video" title="Wideo ýükle">📹 Wideo <input type="file" accept="video/*" onchange="loadMedia(event, '${id}', 'vid')"></label>
+                    <button type="button" class="btn btn-rotate" onclick="rotateImg('${id}')" title="Öwür">🔄</button>
+                    <button type="button" class="btn btn-delete" onclick="deleteMedia('${id}')" title="Poz">🗑️</button>
+                </div>
+            `;
+            container.appendChild(card);
+        }
+
+        function saveTitle(id, val) { localStorage.setItem('title_' + id, val); }
+        
+        function filterDictionary() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const cat = document.getElementById('category-select').value;
+            const filtered = dictionaryItems.filter(item => {
+                const matchesCat = (cat === 'all' || item.cat === cat);
+                const currentTitle = (localStorage.getItem('title_' + item.id) || `Jest ${item.id.replace('dict_', '')}`).toLowerCase();
+                return matchesCat && currentTitle.includes(query);
+            });
+            renderDictionary(filtered);
+        }
+
+        function loadMedia(event, id, type) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (type === 'img') {
+                        const img = new Image();
+                        img.onload = function() {
+                            const canvas = document.createElement('canvas');
+                            const MAX = 700;
+                            let w = img.width, h = img.height;
+                            if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } }
+                            else { if (h > MAX) { w *= MAX / h; h = MAX; } }
+                            canvas.width = w; canvas.height = h;
+                            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                            const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                            
+                            localStorage.removeItem('vid_' + id);
+                            localStorage.setItem('img_' + id, dataUrl);
+                            localStorage.setItem('rot_' + id, 0);
+                            displayMedia(id, 'img', dataUrl, 0);
+                        }
+                        img.src = e.target.result;
+                    } else if (type === 'vid') {
+                        const dataUrl = e.target.result;
+                        localStorage.removeItem('img_' + id);
+                        localStorage.removeItem('rot_' + id);
+                        localStorage.setItem('vid_' + id, dataUrl);
+                        displayMedia(id, 'vid', dataUrl, 0);
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function loadSavedMedia(id) {
+            const imgData = localStorage.getItem('img_' + id);
+            const vidData = localStorage.getItem('vid_' + id);
+            const rot = parseInt(localStorage.getItem('rot_' + id) || '0');
+            if (imgData) {
+                displayMedia(id, 'img', imgData, rot);
+            } else if (vidData) {
+                displayMedia(id, 'vid', vidData, 0);
+            }
+        }
+
+        function displayMedia(id, type, src, rot) {
+            const box = document.getElementById('box_' + id);
+            box.style.display = 'flex';
+            const imgEl = document.getElementById('img_' + id);
+            const vidEl = document.getElementById('vid_file_' + id);
+            const txtEl = document.getElementById('txt_' + id);
+            
+            if(type === 'img') {
+                imgEl.src = src;
+                imgEl.style.transform = `rotate(${rot}deg)`;
+                imgEl.style.display = 'block';
+                vidEl.style.display = 'none';
+            } else {
+                vidEl.src = src;
+                vidEl.style.display = 'block';
+                imgEl.style.display = 'none';
+            }
+            txtEl.style.display = 'none';
+        }
+
+        function rotateImg(id) {
+            let rot = parseInt(localStorage.getItem('rot_' + id) || '0');
+            rot = (rot + 90) % 360;
+            localStorage.setItem('rot_' + id, rot);
+            const data = localStorage.getItem('img_' + id);
+            if (data) displayMedia(id, 'img', data, rot);
+        }
+
+        function deleteMedia(id) {
+            localStorage.removeItem('img_' + id);
+            localStorage.removeItem('vid_' + id);
+            localStorage.removeItem('rot_' + id);
+            const box = document.getElementById('box_' + id);
+            box.style.display = 'flex';
+            const imgEl = document.getElementById('img_' + id);
+            const vidEl = document.getElementById('vid_file_' + id);
+            const txtEl = document.getElementById('txt_' + id);
+            if(imgEl) imgEl.src = ''; 
+            if(vidEl) vidEl.src = '';
+            if(imgEl) imgEl.style.display = 'none'; 
+            if(vidEl) vidEl.style.display = 'none';
+            if(txtEl) txtEl.style.display = 'block';
+        }
+
+        function switchTab(tabId) {
+            ['alphabet', 'dictionary', 'games', 'about'].forEach(t => {
+                document.getElementById('tab-' + t).classList.add('hidden');
+                document.getElementById('tab-btn-' + t).classList.remove('active');
+            });
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.getElementById('tab-btn-' + tabId).classList.add('active');
+            if(tabId !== 'games') closeGames();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function goHome() { switchTab('alphabet'); }
+        function closeGames() { document.getElementById('games-menu-container').classList.remove('hidden'); document.getElementById('game-quiz').classList.add('hidden'); }
+        
+        let quizScore = 0;
+        function startQuizGame() { 
+            document.getElementById('games-menu-container').classList.add('hidden'); 
+            document.getElementById('game-quiz').classList.remove('hidden'); 
+            nextGameQuestion(); 
+        }
+        
+        function nextGameQuestion() {
+            const targetEl = document.getElementById('game-target');
+            const optionsEl = document.getElementById('game-options');
+            optionsEl.innerHTML = '';
+            const correctLetter = letters[Math.floor(Math.random() * letters.length)];
+            targetEl.innerText = "Harp: " + correctLetter;
+            let choices = [correctLetter];
+            while (choices.length < 4) { 
+                let r = letters[Math.floor(Math.random() * letters.length)]; 
+                if (!choices.includes(r)) choices.push(r); 
+            }
+            choices.sort(() => Math.random() - 0.5);
+            choices.forEach(char => {
+                const btn = document.createElement('button'); 
+                btn.className = 'game-btn'; 
+                btn.innerText = char;
+                btn.onclick = function() { 
+                    if (char === correctLetter) { 
+                        quizScore += 10; 
+                        alert("Dogry! Molodyc! 🎉"); 
+                    } else { 
+                        quizScore = Math.max(0, quizScore - 5); 
+                        alert("Ýalňyş! Ýene synanyşyň. ❌"); 
+                    } 
+                    document.getElementById('quiz-score').innerText = "Toplanan utuk / Очки: " + quizScore; 
+                    nextGameQuestion(); 
+                };
+                optionsEl.appendChild(btn);
+            });
+        }
+
+        const texts = {
+            tk: { title: "Türkmen Barmak Elipbiýi we Jestler", school: "Lebap welaýatynyň 5-nji ker, çala eşidýän we soň ker bolan çagalar üçin ýörite mekdep-internaty", home: "Öýe", tabAlpha: "Daktil Elipbiý", tabDict: "Jestler (100)", tabGames: "🎮 Oýunlar", tabAbout: "Maglumat", alphaH: "Türkmen Barmak Elipbiýi (Алфавит)", alphaD: "Ähli harplar üçin suratlary we wideolary ýükläp bilersiňiz.", dictH: "Tematiki Jestler Sözlügi (100)", dictD: "Mekdep maksatnamasy boýunça esasy jestler.", aboutH: "Maglumat we Awtorlyk Hukugy" },
+            ru: { title: "Туркменский дактильный алфавит и жесты", school: "Специальная школа-интернат для глухих и слабослышащих детей №5 Лебапского велаята", home: "Домой", tabAlpha: "Дактильный алфавит", tabDict: "Жесты (100)", tabGames: "🎮 Игры", tabAbout: "О программе", alphaH: "Туркменский дактильный алфавит", alphaD: "Вы можете загрузить фото- и видеоматериалы.", dictH: "Тематический словарь жестов (100)", dictD: "Основные жесты по школьной программе.", aboutH: "Информация и авторские права" }
+        };
+        
+        function changeLanguage(lang) {
+            const t = texts[lang];
+            document.getElementById('h-title').innerText = t.title;
+            document.getElementById('h-school').innerText = t.school;
+            document.getElementById('btn-home').innerText = t.home;
+            document.getElementById('tab-btn-alphabet').innerText = t.tabAlpha;
+            document.getElementById('tab-btn-dictionary').innerText = t.tabDict;
+            document.getElementById('tab-btn-games').innerText = t.tabGames;
+            document.getElementById('tab-btn-about').innerText = t.tabAbout;
+            document.getElementById('alpha-h').innerText = t.alphaH;
+            document.getElementById('alpha-d').innerText = t.alphaD;
+            document.getElementById('dict-h').innerText = t.dictH;
+            document.getElementById('dict-d').innerText = t.dictD;
+            document.getElementById('about-h').innerText = t.aboutH;
+        }
+    </script>
+</body>
+</html>
